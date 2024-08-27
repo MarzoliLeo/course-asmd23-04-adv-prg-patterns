@@ -25,6 +25,8 @@ object SequenceADT:
     case Cons(h, t) => Cons(h, concat(t, seq2))
     case Nil()      => seq2
 
+
+
 @main def trySequenceADT =
   import SequenceADT.* 
   val seq = cons(10, cons(20, cons(30, nil())))
