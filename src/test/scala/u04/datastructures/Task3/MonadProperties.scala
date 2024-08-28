@@ -4,7 +4,7 @@ import org.scalacheck.{Arbitrary, Gen, Prop, Properties}
 import org.scalacheck.Prop.forAll
 import u04.monads.Optionals.{*, given}
 import Optional.*
-import u04.monads.Monads.Monad
+
 object MonadProperties extends Properties("Monad") {
 
   // Define Arbitrary instances for your Monad and functions
@@ -44,9 +44,7 @@ object MonadProperties extends Properties("Monad") {
   property("associativity") = forAll { (m: Option[Int], f: Int => Option[Int], g: Int => Option[Int]) =>
     m.flatMap(f).flatMap(g) == m.flatMap(x => f(x).flatMap(g))
   }
-
-
-  // Import the given Monad[Optional] instance
+  
 
   // Left identity law: flatMap(unit(x))(f) == f(x)
   property("left_identity_optional") = forAll { (x: Int, f: Int => Optional[Int]) =>

@@ -12,33 +12,31 @@ class SwingFunctionalFacade {
         Frame setSize(int width, int height);
         Frame addButton(String text, String name);
         Frame addLabel(String text, String name);
+        Frame addTextField(String name);
+        String getTextFieldValue(String name);
         Frame showToLabel(String text, String name);
         Frame show();
-        Supplier<String> events();        
+        Supplier<String> events();
     }
 
     public static Frame createFrame(){
         return new FrameImpl();
     }
 
-    /*
-    private static class FrameImpl implements Frame {
-      ...
-    }
-    */
-
     private static class FrameImpl implements Frame {
         private final JFrame jframe = new JFrame();
         private final Map<String, JButton> buttons = new HashMap<>();
         private final Map<String, JLabel> labels = new HashMap<>();
+        private final Map<String, JTextField> textFields = new HashMap<>();
         private final LinkedBlockingQueue<String> eventQueue = new LinkedBlockingQueue<>();
         private final Supplier<String> events = () -> {
-            try{
+            try {
                 return eventQueue.take();
-            } catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 return "";
             }
         };
+
         public FrameImpl() {
             this.jframe.setLayout(new FlowLayout());
         }
@@ -57,7 +55,7 @@ class SwingFunctionalFacade {
             jb.addActionListener(e -> {
                 try {
                     eventQueue.put(name);
-                } catch (InterruptedException ex){}
+                } catch (InterruptedException ex) {}
             });
             this.jframe.getContentPane().add(jb);
             return this;
@@ -69,6 +67,20 @@ class SwingFunctionalFacade {
             this.labels.put(name, jl);
             this.jframe.getContentPane().add(jl);
             return this;
+        }
+
+        @Override
+        public Frame addTextField(String name) {
+            JTextField tf = new JTextField(20);
+            this.textFields.put(name, tf);
+            this.jframe.getContentPane().add(tf);
+            return this;
+        }
+
+        @Override
+        public String getTextFieldValue(String name) {
+            JTextField tf = this.textFields.get(name);
+            return tf != null ? tf.getText() : "";
         }
 
         @Override
@@ -87,6 +99,6 @@ class SwingFunctionalFacade {
             this.jframe.setVisible(true);
             return this;
         }
-
     }
 }
+
