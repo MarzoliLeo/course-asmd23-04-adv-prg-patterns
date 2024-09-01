@@ -164,24 +164,24 @@ Per svolgere questo task è stato utilizzato interamente ChatGPT, ora analizziam
 * **implement**: Sì, ChatGPT è in grado di implementare specifiche monadiche, generando codici che rispettano le leggi monadiche (identità sinistra, identità destra, e associatività). Un esempio semplice potrebbe essere l'implementazione di una monade Option in Scala:
 
     ```Scala
-  trait Monad[F[_]]:
-  def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
-  def unit[A](a: => A): F[A]
-
-  given optionMonad: Monad[Option] with
-  def flatMap[A, B](fa: Option[A])(f: A => Option[B]): Option[B] =
-   fa match
-    case Some(value) => f(value)
-    case None => None
-
-  def unit[A](a: => A): Option[A] = Some(a)
+      trait Monad[F[_]]:
+      def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
+      def unit[A](a: => A): F[A]
     
+      given optionMonad: Monad[Option] with
+      def flatMap[A, B](fa: Option[A])(f: A => Option[B]): Option[B] =
+       fa match
+        case Some(value) => f(value)
+        case None => None
+    
+      def unit[A](a: => A): Option[A] = Some(a)
+        
     ```
 
 * **reverse-engineer**: Sì, ChatGPT può assistere nel reverse engineering di specifiche esistenti, analizzando il codice per dedurre le specifiche implicite o non documentate. Per esempio, dato un'implementazione di una monade, ChatGPT può inferire quali leggi monadiche sono rispettate e proporre test per verificarne la conformità. Ad esempio, se dato un metodo flatMap e unit, ChatGPT può suggerire un test di proprietà:
- ```Scala
-    property("left_identity") = forAll { (x: Int, f: Int => Option[Int]) =>
-      optionMonad.flatMap(optionMonad.unit(x))(f) == f(x)
-    }
- ```
+     ```Scala
+        property("left_identity") = forAll { (x: Int, f: Int => Option[Int]) =>
+          optionMonad.flatMap(optionMonad.unit(x))(f) == f(x)
+        }
+     ```
 ChatGPT si è dimostrato un alleato nell'esecuzione dei task, ma non si può fare pienamente affidamento alle sue capacità in quando specialmente in ambito monade richiede obbligatoriamente degli esempi di codice per poter avere una possibilità di analizzare codici complessi come quello MVC implementato. Inoltre, cosa che ho notato in questo modulo... la modularità è nemica di ChatGPT, gli import in Scala lo mettono seriamente in difficoltà nel riconoscere i contesti. Se non gli si fornisce il codice di ogni modulo utilizzato lui lo "assume", ma questo aumenta il rischio di errore o a volte fa generare dei codici con metodi che non esistono da nessuna parte. 
