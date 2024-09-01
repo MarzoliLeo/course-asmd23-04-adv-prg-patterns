@@ -142,4 +142,46 @@ L'approccio monadico utilizzato qui può essere ulteriormente sviluppato per int
 
 Sebbene questo approccio sia potente, la complessità dell'applicazione potrebbe diventare difficile da gestire man mano che si aggiungono funzionalità, specialmente quando si tratta di sincronizzare stati complessi o di gestire performance in applicazioni grafiche reattive. Tuttavia, la modularità e la chiarezza che le monadi offrono nella gestione degli stati e delle operazioni sequenziali potrebbero bilanciare questi aspetti, rendendo comunque il modello scalabile per applicazioni di media complessità.
 
- 
+# Task 5: ADVANCED-FP-LLM
+LLMs/ChatGPT can arguably help in write/improve/complete/implement/reverse-engineer ADT specifications, ADTs in Scala, and monadic
+specifications. Check if/whether this is the case.
+
+# Implementazione:
+
+Per svolgere questo task è stato utilizzato interamente ChatGPT, ora analizziamo singolarmente le varie operazioni del task:
+
+* **write** : nella scrittura di specifiche ADT risulta a mio parere molto poco allenato. Su 10 soluzioni richieste corrette sono state solo 2. Utilizzando tecniche zero-shot è estremamente inaccurato, mentre con tecniche few-shots riportando per esempio il codice in "SequenceADT" capisce meglio cosa deve generare. La classe [NewSequenceADT](src/main/scala/u04/adts/NewSequenceADT.scala) è uno dei risultati forniti, funzionante... ma senza nessuna utilità.
+* **improve**: GPT è sempre capace di migliorare anche se di poco il codice fornito. L'importante è dargli sempre un esempio all'interno del prompt da cui partire. Altrimenti, se lasciato libero di generare qualsiasi cosa produce del codice di qualità molto bassa.
+* **complete**: Sì, ChatGPT può completare specifiche di ADT parzialmente definite, basandosi sui costrutti già esistenti nel codice e proponendo elementi mancanti. Ad esempio, se è definito solo un sottoinsieme di costruttori in un ADT, ChatGPT può suggerire i costruttori rimanenti e le relative operazioni:
+  ```Scala
+  sealed trait ConfigOption
+    case class BooleanOption(value: Boolean) extends ConfigOption
+    // ChatGPT potrebbe suggerire di completare con:
+    case class StringOption(value: String) extends ConfigOption
+    case class IntOption(value: Int) extends ConfigOption
+
+  ```
+* **implement**: Sì, ChatGPT è in grado di implementare specifiche monadiche, generando codici che rispettano le leggi monadiche (identità sinistra, identità destra, e associatività). Un esempio semplice potrebbe essere l'implementazione di una monade Option in Scala:
+
+    ```Scala
+  trait Monad[F[_]]:
+  def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
+  def unit[A](a: => A): F[A]
+
+  given optionMonad: Monad[Option] with
+  def flatMap[A, B](fa: Option[A])(f: A => Option[B]): Option[B] =
+   fa match
+    case Some(value) => f(value)
+    case None => None
+
+  def unit[A](a: => A): Option[A] = Some(a)
+    
+    ```
+
+* **reverse-engineer**: Sì, ChatGPT può assistere nel reverse engineering di specifiche esistenti, analizzando il codice per dedurre le specifiche implicite o non documentate. Per esempio, dato un'implementazione di una monade, ChatGPT può inferire quali leggi monadiche sono rispettate e proporre test per verificarne la conformità. Ad esempio, se dato un metodo flatMap e unit, ChatGPT può suggerire un test di proprietà:
+ ```Scala
+    property("left_identity") = forAll { (x: Int, f: Int => Option[Int]) =>
+      optionMonad.flatMap(optionMonad.unit(x))(f) == f(x)
+    }
+ ```
+ChatGPT si è dimostrato un alleato nell'esecuzione dei task, ma non si può fare pienamente affidamento alle sue capacità in quando specialmente in ambito monade richiede obbligatoriamente degli esempi di codice per poter avere una possibilità di analizzare codici complessi come quello MVC implementato. Inoltre, cosa che ho notato in questo modulo... la modularità è nemica di ChatGPT, gli import in Scala lo mettono seriamente in difficoltà nel riconoscere i contesti. Se non gli si fornisce il codice di ogni modulo utilizzato lui lo "assume", ma questo aumenta il rischio di errore o a volte fa generare dei codici con metodi che non esistono da nessuna parte. 
