@@ -74,5 +74,4 @@ object MonadProperties extends Properties("Monad") {
     } yield y)
   }
 
-
 }
